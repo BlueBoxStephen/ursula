@@ -1,0 +1,27 @@
+---
+- file: dest=/var/cache/swift state=directory owner=swift group=swift mode=0755
+- file: dest=/srv/node state=directory owner=root group=root mode=0755
+
+- apt: pkg={{ item }} force=yes
+  with_items:
+    - swift-account
+    - swift-container
+    - swift-object
+    - xfsprogs
+
+- name: configure disks
+  swift_disk: dev={{ item }}
+  with_items:
+    "{{ swift.disks }}"
+
+- template: src=etc/swift/{{ item }}-server.conf dest=/etc/swift/{{ item }}-server.conf owner=root group=root mode=0644
+  with_items:
+    - account
+    - container
+    - object
+
+- template: src=etc/rsyncd.conf dest=/etc/rsyncd.conf owner=root group=root mode=0644
+  notify: restart rsync
+
+- lineinfile: dest=/etc/default/rsync regexp=^RSYNC_ENABLE line=RSYNC_ENABLE=true
+  notify: restart rsync

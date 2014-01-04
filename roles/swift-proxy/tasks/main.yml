@@ -1,0 +1,5 @@
+---
+- apt: pkg=swift-proxy force=yes
+- apt: pkg=memcached
+
+- template: src=etc/swift/proxy-server.conf dest=/etc/swift/proxy-server.conf owner=root group=root mode=0644

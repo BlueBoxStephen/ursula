@@ -1,0 +1,26 @@
+---
+# TODO: remove when running full site.yml
+- apt: update_cache=yes
+- apt: pkg=python-pip
+- apt: pkg=git
+- apt: pkg=ruby1.9.1
+- apt: pkg=rubygems
+- gem: name=antsy state=latest user_install=no
+
+- shell: pip install git+https://github.com/openstack/python-swiftclient.git
+
+
+- apt: pkg=python-software-properties
+
+- apt_repository: repo='deb http://ubuntu-cloud.archive.canonical.com/ubuntu precise-updates/havana main' state=present
+
+- apt: pkg=swift
+
+- user: name=swift comment=swift shell=/bin/false system=yes home=/nonexistent createhome=no
+
+- file: dest=/etc/swift state=directory owner=swift group=swift mode=0755
+
+- template: src=etc/swift/swift.conf dest=/etc/swift/swift.conf owner=root group=root mode=0644
+
+- file: dest=/var/run/swift state=directory owner=swift group=swift mode=0755
+- lineinfile: dest=/etc/rc.local regexp="/var/run/swift" insertbefore="^exit 0" line="install -d /var/run/swift -o swift -g swift -m 0755"
